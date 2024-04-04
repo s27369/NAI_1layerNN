@@ -49,9 +49,13 @@ def test_model(dataset, model):
         obs = get_observation(dataset, i)
         p = model.predict(obs)
         predictions.append(p)
-        print(f"Classified {'Setosa' if obs[-1]==1 else 'Non-setosa'} {'correctly' if p==obs[-1] else 'incorrectly'} ")
-    acc = model.get_accuracy(dataset, predictions)
-    print(f"Accuracy={acc}")
+        print(f"Classified {obs[-1]} as {p} ")
+
+    acc = 0
+    for x in range(len(predictions)):
+        if dataset[label_name][x]==predictions[x]:
+            acc+=1
+    print(f"Accuracy={acc/len(predictions)}")
 if __name__ == '__main__':
 
     # for data, _ in yield_data(train_folder, True):
@@ -61,8 +65,12 @@ if __name__ == '__main__':
     #     print("\n")
     train = get_dataset("train")
     dataset_info(train)
-    layer = Layer(get_num_of_attributes(train), languages, 0.4, 5)
-    layer.train_layer(train)
+    layer = Layer(get_num_of_attributes(train), languages, 0.5, 10)
+    layer.train_layer(train, 100)
+
+    test = get_dataset("train")
+    dataset_info(test)
+    test_model(test, layer)
 
 
 

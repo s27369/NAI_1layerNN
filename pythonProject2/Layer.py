@@ -15,12 +15,12 @@ class Layer:
 
     def predict(self, observation):
         p = []
-        for lang, neuron in self.neurons:
+        for lang, neuron in self.neurons. items():
             if neuron.predict(observation) == 1:
                 p.append(lang)
-        if len(p)>1:
-            print(f"Conflict: possible languages={p}")
         if len(p)==0:
             print(f"error: didn't detect any language")
             return None
+        if len(p)>1:
+            print(f"Conflict: possible languages={p}")
         return p[0]
