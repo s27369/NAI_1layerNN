@@ -3,10 +3,12 @@ from Util import *
 
 class Perceptron:
 
-    def __init__(self, num_inputs, learning_rate, bias):
+    def __init__(self, num_inputs, learning_rate, bias, target):
         self.weights = self.get_weights(num_inputs)
         self.bias = bias
         self.learning_rate = learning_rate
+        self.target = target
+
 
     def get_weights(self, amount):
         return [get_rand_nonzero() for _ in range(amount)]
@@ -28,8 +30,8 @@ class Perceptron:
 
     def little_train(self, observation):
         p = self.predict(observation)
-        if p != observation[-1]:
-            delta = self.get_delta(observation[-1], p)
+        if not (p==1 and observation[-1]==self.target):
+            delta = self.get_delta(1 if observation[-1]==self.target else 0, p)
             self.correct_bias(delta)
             self.correct_weights(observation, delta)
         return p
@@ -44,7 +46,7 @@ class Perceptron:
     def get_accuracy(self, dataset, predictions):
         correct=0
         for i in range(len(predictions)):
-            if dataset[label_name][i] == predictions[i]:
+            if (dataset[label_name][i] == self.target and predictions[i]==1) or (dataset[label_name][i] != self.target and predictions[i]==0):
                 correct+=1
         return correct/len(predictions)
 
@@ -67,7 +69,7 @@ class Perceptron:
                     self.print_state(counter, accuracy)
                     counter+=1
                     predictions.clear()
-                    if counter>10 and accuracy-previous_accuracy[-2]<0.000000001:
+                    if (counter>10 and accuracy-previous_accuracy[-2]<0.000000001) or accuracy==1:
                         return previous_accuracy
                     # if counter % 50 == 0:
                     #     input("pause")

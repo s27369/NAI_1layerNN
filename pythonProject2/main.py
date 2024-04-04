@@ -1,7 +1,7 @@
 import os
 
 from Util import *
-from Perceptron import Perceptron
+from Layer import Layer
 import string
 languages = ["angielski", "francuski", "hiszpański", "niemiecki", "polski"]
 test_folder = "data/test"
@@ -41,9 +41,17 @@ def get_dataset(type):
     for d, lang in yield_data(path):
         for k, v in d.items():
             dataset[k].append(v)
-            dataset[label_name].append(lang)
+        dataset[label_name].append(lang)
     return dataset
-
+def test_model(dataset, model):
+    predictions = []
+    for i in range(len(dataset[label_name])):
+        obs = get_observation(dataset, i)
+        p = model.predict(obs)
+        predictions.append(p)
+        print(f"Classified {'Setosa' if obs[-1]==1 else 'Non-setosa'} {'correctly' if p==obs[-1] else 'incorrectly'} ")
+    acc = model.get_accuracy(dataset, predictions)
+    print(f"Accuracy={acc}")
 if __name__ == '__main__':
 
     # for data, _ in yield_data(train_folder, True):
@@ -53,4 +61,9 @@ if __name__ == '__main__':
     #     print("\n")
     train = get_dataset("train")
     dataset_info(train)
+    layer = Layer(get_num_of_attributes(train), languages, 0.4, 5)
+    layer.train_layer(train)
+
+
+
 

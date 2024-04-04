@@ -49,7 +49,7 @@ def file_to_dict(path, check=False):
 def dataset_info(dic):
     for k, v in list(dic.items())[:-1]: print(f'{k}: {len(v)} values, ranging from {min(v)} to {max(v)}')
     s = set(dic[label_name])
-    print(f'{label_name}: {len(s)} unique values {s}')
+    print(f'{label_name}: {len(s)} unique values {[f"{x}={dic[label_name].count(x)}" for x in s]}')
 
 def get_observation(dataset, index):
     return [dataset[x][index] for x in dataset]
