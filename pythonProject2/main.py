@@ -1,5 +1,7 @@
 import os
 
+from matplotlib import pyplot as plt
+
 from Util import *
 from Layer import Layer
 import string
@@ -13,11 +15,14 @@ alphabet = set(string.ascii_lowercase)
 def txt_to_vector(filepath):
     with open(filepath, 'r',encoding="utf-8") as f:
         corpus = f.read()
+    return string_to_vector(corpus)
+
+def string_to_vector(s, Label=False):
     alphabet = set(string.ascii_lowercase)
-    corpus = ''.join(char for char in corpus if char in alphabet)
-    corups = corpus.lower()
-    size = len(corpus)
-    vec = {x:corpus.count(x)/size for x in alphabet}
+    s = s.lower()
+    s = ''.join(char for char in s if char in alphabet)
+    size = len(s)
+    vec = {x: s.count(x) / size for x in alphabet}
     return vec
 
 def yield_data(path, prnt=False):
@@ -43,19 +48,83 @@ def get_dataset(type):
             dataset[k].append(v)
         dataset[label_name].append(lang)
     return dataset
-def test_model(dataset, model):
+
+def vec_to_dataset(vec):
+    dataset = {x: [] for x in alphabet}
+    dataset[label_name] = []
+    for k, v in vec.items():
+        dataset[k].append(v)
+    return dataset
+def test_model(dataset, model, prnt=False):
     predictions = []
     for i in range(len(dataset[label_name])):
         obs = get_observation(dataset, i)
         p = model.predict(obs)
         predictions.append(p)
-        print(f"Classified {obs[-1]} as {p} ")
+        if prnt: print(f"Classified {obs[-1]} as {p} ")
 
     acc = 0
     for x in range(len(predictions)):
         if dataset[label_name][x]==predictions[x]:
             acc+=1
-    print(f"Accuracy={acc/len(predictions)}")
+    if prnt:print(f"Accuracy={acc/len(predictions)}")
+    return acc/len(predictions)
+
+def get_plot(dic):
+    max_acc, min_acc = max(dic.values()), min(dic.values())
+    plt.plot( dic.keys(),dic.values() )
+    plt.xlabel("Num of iterations")
+    plt.ylabel("Accuracy")
+    plt.title("Accuracy vs num of iterations")
+    plt.axhline(y=max_acc, color='green')
+    plt.text(x=0, y=max_acc, s=f'Max accuracy: {max_acc}', color='green', fontsize=8, verticalalignment='bottom')
+    plt.axhline(y=min_acc, color='red')
+    plt.text(x=0, y=min_acc, s=f'Min accuracy: {min_acc}', color='red', fontsize=8, verticalalignment='bottom')
+    plt.show()
+def interface(test,train, languages):
+    model = Layer(get_num_of_attributes(train), languages, 0.5, 10)
+    quit=False
+    while not quit:
+        print("Choose number:\n1 - input sample text to classify\n2 - test model\n3 - get accuracy graph per learning rate for given bias\n4 - quit\n>>>", end="")
+        try:
+            i = int(input())
+        except:
+            print("Incorrect input.")
+            continue
+        if i == 1:
+            try:
+                txt = input("input text\n>>>")
+                vec = string_to_vector(txt)
+                d = vec_to_dataset(vec)
+                d[label_name]="unknown"
+                obs = get_observation(d, 0)
+                print(model.predict(obs))
+            except:
+                print("incorrect input")
+        elif i == 2:
+                print(test_model(test, model))
+        elif i==3:
+            try:
+                b = int(input("bias (int)\n>>>"))
+                acc = {}
+                for i in range(1, 100):
+                    layer = Layer(get_num_of_attributes(train), languages, i/100, b)
+                    layer.train_layer(train, 100)
+                    result =  test_model(test, layer)
+                    acc[i / 100] =result
+                    if result == 1:
+                        model = layer
+                        break
+                print(acc)
+                key = next((k for k, v in acc.items() if v == max(acc.values())), None)
+                print(max(acc.values()), key)
+                get_plot(acc)
+            except:
+                print("incorrect input")
+        elif i == 4:
+            return
+        else:
+            print("Incorrect input.")
 if __name__ == '__main__':
 
     # for data, _ in yield_data(train_folder, True):
@@ -71,6 +140,8 @@ if __name__ == '__main__':
     test = get_dataset("train")
     dataset_info(test)
     test_model(test, layer)
+    interface(test,train, languages)
+
 
 
 
