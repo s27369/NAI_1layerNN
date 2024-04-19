@@ -102,7 +102,7 @@ def interface(test,train, languages):
             except:
                 print("incorrect input")
         elif i == 2:
-                print(test_model(test, model))
+                print(test_model(test, model, True))
         elif i==3:
             try:
                 b = int(input("bias (int)\n>>>"))
@@ -137,12 +137,7 @@ if __name__ == '__main__':
     layer = Layer(get_num_of_attributes(train), languages, 0.5, 10)
     layer.train_layer(train, 100)
 
-    test = get_dataset("train")
+    test = get_dataset("test")
     dataset_info(test)
-    test_model(test, layer)
+    test_model(test, layer, True)
     interface(test,train, languages)
-
-
-
-
-

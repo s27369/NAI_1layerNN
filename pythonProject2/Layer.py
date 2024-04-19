@@ -15,12 +15,19 @@ class Layer:
 
     def predict(self, observation):
         p = []
-        for lang, neuron in self.neurons. items():
-            if neuron.predict(observation) == 1:
+        nets = {}
+        for lang, neuron in self.neurons.items():
+            pred, net = neuron.predict(observation)
+            if pred == 1:
                 p.append(lang)
-        if len(p)==0:
+            nets[lang] = net
+        if len(p) == 0:
             print(f"error: didn't detect any language")
-            return None
-        if len(p)>1:
+            print(f"nets: {nets}")
+            print(f"max: {max(nets, key=nets.get)}")
+            return max(nets, key=nets.get)
+        if len(p) > 1:
             print(f"Conflict: possible languages={p}")
+            return max(nets, key=nets.get)
         return p[0]
+

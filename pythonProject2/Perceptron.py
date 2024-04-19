@@ -26,10 +26,10 @@ class Perceptron:
 
     def predict(self, observation):
         net = self.dot_product(observation[:-1], self.weights)
-        return self.activation(net-self.bias)
+        return self.activation(net-self.bias), net
 
     def little_train(self, observation):
-        p = self.predict(observation)
+        p, _ = self.predict(observation)
         if not (p==1 and observation[-1]==self.target):
             delta = self.get_delta(1 if observation[-1]==self.target else 0, p)
             self.correct_bias(delta)
